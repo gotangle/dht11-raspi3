@@ -18,7 +18,7 @@ https://www.mobilefish.com/developer/iota/iota_quickguide_raspi_mam.html
 
 const Mam = require('./lib/mam.client.js');
 const IOTA = require('iota.lib.js');
-const iota = new IOTA({ provider: 'https://nodes.testnet.iota.org:443' });
+const iota = new IOTA({ provider: 'http://node.deviceproof.org:14265' });
 
 const MODE = 'restricted'; // public, private or restricted
 const SIDEKEY = 'mysecret'; // Enter only ASCII characters. Used only in restricted mode

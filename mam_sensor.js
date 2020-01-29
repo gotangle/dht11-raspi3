@@ -16,17 +16,20 @@ Usage:
 More information:
 https://www.mobilefish.com/developer/iota/iota_quickguide_raspi_mam.html
 */
+var lcdi2c = require('lcdi2c');
+var lcd = new lcdi2c(1, 0x27, 16, 2);
+
 const sensor = require('node-dht-sensor');
 const Mam = require('./lib/mam.client.js');
 const IOTA = require('iota.lib.js');
 const moment = require('moment');
 
-const iota = new IOTA({ provider: 'https://nodes.testnet.iota.org:443' });
+const iota = new IOTA({ provider: 'http://node.deviceproof.org:14265' });
 
-const MODE = 'restricted'; // public, private or restricted
+const MODE = 'public'; // public, private or restricted
 const SIDEKEY = 'mysecret'; // Enter only ASCII characters. Used only in restricted mode
 const SECURITYLEVEL = 3; // 1, 2 or 3
-const TIMEINTERVAL = 30; // seconds
+const TIMEINTERVAL = 60; // seconds
 const SENSORTYPE = 11; // 11=DHT11, 22=DHT22
 const GPIOPIN = 4; // The Raspi gpio pin where data from the DHT11 is read
 
@@ -61,12 +64,15 @@ const publish = async function(packet) {
 function readSensor(){
     sensor.read(SENSORTYPE, GPIOPIN, async function(err, temperature, humidity) {
         if (!err) {
-            const dateTime = moment().utc().format('DD/MM/YYYY hh:mm:ss');
-            const data = `{temp: ${temperature.toFixed(1)} C, humidity: ${humidity.toFixed(1)} %}`;
+	    const dateTime = moment().format('YYYY/MM/DD HH:mm:ss');
+            const data = `{Temp:${temperature.toFixed(1)}*C Humidity:${humidity.toFixed(1)}%}`;
             const json = {"data": data, "dateTime": dateTime};
-
             const root = await publish(json);
             console.log(`dateTime: ${json.dateTime}, data: ${json.data}, root: ${root}`);
+
+	    lcd.clear();
+    	    lcd.println(`Temp:${temperature.toFixed(1)}*C`, 1);
+    	    lcd.println(`Humidity:${humidity.toFixed(1)}%`, 2);
 
         } else {
             console.log(err);
